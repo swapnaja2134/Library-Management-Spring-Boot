@@ -59,4 +59,8 @@ public class BookService {
 	public List<Book> availableBooks() {
 		return bookRepository.findByAvailableCopiesGreaterThan(0);
 	}
+	
+	public List<Book> searchBooks(String title) {
+	    return bookRepository.findByTitleContainingIgnoreCase(title);
+	}
 }
