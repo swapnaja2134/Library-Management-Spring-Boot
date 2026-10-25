@@ -53,6 +53,10 @@ public class BorrowService {
 			throw new BadRequestException("Book is not available for borrowing");
 		}
 
+		if (borrowRepository.existsActiveBorrow(user.getUserid(), bookId, BorrowStatus.BORROWED)) {
+			throw new BadRequestException("You have already borrowed this book");
+		}
+		
 		book.setAvailableCopies(book.getAvailableCopies() - 1);
 		bookRepository.save(book);
 
