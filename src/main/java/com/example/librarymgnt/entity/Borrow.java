@@ -11,7 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @Entity
 @Table(name="borrow")
 public class Borrow {
@@ -20,10 +20,12 @@ public class Borrow {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 	
+	@JsonIgnoreProperties({"phone", "address", "createdAt"})
 	@ManyToOne
 	@JoinColumn(
 	        name="userid"
 	)
+	
 	private User user;	
 	
 	@ManyToOne
@@ -43,6 +45,8 @@ public class Borrow {
 	@Enumerated(EnumType.STRING)
 	private BorrowStatus status;
 
+	
+	
 	public Borrow(User user, Book book, LocalDate borrowDate, LocalDate dueDate, LocalDate returnDate,
 			BorrowStatus status) {
 		super();
