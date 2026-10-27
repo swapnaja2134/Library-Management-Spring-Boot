@@ -23,7 +23,7 @@ import jakarta.servlet.http.HttpServletResponse;
 @Configuration
 public class SecurityConfig {
 
-	@Value("${app.cors.origins}")
+	@Value("${app.cors.origins:http://localhost:5173}")
 	private String allowedOrigins;
     @Autowired
     private JwtFilter jwtFilter;

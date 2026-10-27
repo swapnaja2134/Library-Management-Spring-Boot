@@ -15,6 +15,7 @@ import com.example.librarymgnt.entity.UserResponse;
 import com.example.librarymgnt.exception.ResourceNotFoundException;
 import com.example.librarymgnt.exception.UserAlreadyExistsException;
 import com.example.librarymgnt.repository.UserRepository;
+import com.example.librarymgnt.exception.BadRequestException;
 
 @Service
 public class AdminService {
@@ -140,4 +141,19 @@ public class AdminService {
 		user.setEnabled(true);
 		userRepository.save(user);
 	}
+	
+	// admin sets a new temporary password for a user
+	public void resetPassword(Integer id, String newPassword) {
+		User user = userRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+
+		// the admin account itself cannot be reset from here
+		if (user.getRole() == Role.ADMIN) {
+			throw new BadRequestException("Admin password cannot be reset here");
+		}
+
+		user.setPassword(passwordEncoder.encode(newPassword));
+		userRepository.save(user);
+	}
+	
 }

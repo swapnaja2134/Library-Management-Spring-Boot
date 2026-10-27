@@ -1,6 +1,7 @@
 package com.example.librarymgnt.entity;
 
 import java.time.LocalDate;
+import jakarta.persistence.Transient;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -118,5 +119,38 @@ public class Borrow {
 	public void setStatus(BorrowStatus status) {
 		this.status = status;
 	}
+	
+	// these are not saved in the database, we work them out when sending the data
+	@Transient
+	private Integer daysLate = 0;
 
+	@Transient
+	private Integer fine = 0;
+
+	@Transient
+	private boolean overdue = false;
+
+	public Integer getDaysLate() {
+		return daysLate;
+	}
+
+	public void setDaysLate(Integer daysLate) {
+		this.daysLate = daysLate;
+	}
+
+	public Integer getFine() {
+		return fine;
+	}
+
+	public void setFine(Integer fine) {
+		this.fine = fine;
+	}
+
+	public boolean isOverdue() {
+		return overdue;
+	}
+
+	public void setOverdue(boolean overdue) {
+		this.overdue = overdue;
+	}
 }

@@ -1,6 +1,7 @@
 package com.example.librarymgnt.service;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,8 @@ import com.example.librarymgnt.repository.UserRepository;
 
 @Service
 public class BorrowService {
+	// fine for every day a book is late (in rupees)
+	private static final int FINE_PER_DAY = 2;
 	
 	@Autowired
 	private BorrowRepository borrowRepository;
@@ -94,6 +97,11 @@ public class BorrowService {
 		if (borrow.getStatus() == BorrowStatus.RETURNED) {
 			throw new BadRequestException("Book already returned");
 		}
+		// check if the book is being returned late
+		long lateDays = 0;
+		if (borrow.getDueDate() != null) {
+			lateDays = ChronoUnit.DAYS.between(borrow.getDueDate(), LocalDate.now());
+		}
 
 		borrow.setReturnDate(LocalDate.now());
 		borrow.setStatus(BorrowStatus.RETURNED);
@@ -106,6 +114,9 @@ public class BorrowService {
 
 		borrowRepository.save(borrow);
 
+		if (lateDays > 0) {
+			return "Book returned. Late fine: Rs. " + (lateDays * FINE_PER_DAY);
+		}
 		return "Book returned successfully";
 	}
 
@@ -117,10 +128,49 @@ public class BorrowService {
 			throw new ResourceNotFoundException("Authenticated user not found");
 		}
 
-		return borrowRepository.findByUserUserid(user.getUserid());
+		List<Borrow> records = borrowRepository.findByUserUserid(user.getUserid());
+		for (Borrow record : records) {
+			addFine(record);
+		}
+		return records;
 	}
 
 	public List<Borrow> getAllBorrowRecords() {
-		return borrowRepository.findAll();
+		List<Borrow> records = borrowRepository.findAll();
+		for (Borrow record : records) {
+			addFine(record);
+		}
+		return records;
+	}
+
+	
+	
+	// works out how many days late and the fine for one borrow record
+	private void addFine(Borrow borrow) {
+		borrow.setDaysLate(0);
+		borrow.setFine(0);
+		borrow.setOverdue(false);
+
+		if (borrow.getDueDate() == null) {
+			return;
+		}
+
+		// if the book is returned use the return date, otherwise use today
+		LocalDate endDate = LocalDate.now();
+		if (borrow.getReturnDate() != null) {
+			endDate = borrow.getReturnDate();
+		}
+
+		long late = ChronoUnit.DAYS.between(borrow.getDueDate(), endDate);
+
+		if (late > 0) {
+			borrow.setDaysLate((int) late);
+			borrow.setFine((int) late * FINE_PER_DAY);
+
+			// a book that is not returned yet and is late is overdue
+			if (borrow.getStatus() == BorrowStatus.BORROWED) {
+				borrow.setOverdue(true);
+			}
+		}
 	}
 }

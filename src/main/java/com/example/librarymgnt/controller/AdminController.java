@@ -1,6 +1,7 @@
 package com.example.librarymgnt.controller;
 
 import java.util.Collections;
+import com.example.librarymgnt.exception.BadRequestException;
 import java.util.List;
 import java.util.Map;
 
@@ -71,5 +72,18 @@ public class AdminController {
 	public ResponseEntity<Map<String, String>> enableUser(@PathVariable Integer id) {
 		adminService.enableUser(id);
 		return ResponseEntity.ok(Collections.singletonMap("message", "User enabled successfully"));
+	}
+	
+	@PutMapping("/reset-password/{id}")
+	public ResponseEntity<Map<String, String>> resetPassword(@PathVariable Integer id,
+			@RequestBody Map<String, String> request) {
+		String newPassword = request.get("newPassword");
+
+		if (newPassword == null || newPassword.length() < 6) {
+			throw new BadRequestException("Password must be at least 6 characters");
+		}
+
+		adminService.resetPassword(id, newPassword);
+		return ResponseEntity.ok(Collections.singletonMap("message", "Password reset successfully"));
 	}
 }
