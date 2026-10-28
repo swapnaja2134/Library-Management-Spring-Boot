@@ -9,7 +9,7 @@
 
 This is a library app. Students (members) can search for books, borrow them and return them. The admin can add and remove books and look after the members.
 
-I built the backend with Spring Boot and the frontend with React. I also added an AI search, where a student can type what they want in normal words, like "a book to start learning web development".
+I built the backend with Spring Boot and the frontend with React.js. I also added an AI search, where a student can type what they want in normal words, like "a book to start learning web development".
 
 <!-- Add 2 or 3 screenshots here, for example: ![Books page](screenshots/books.png) -->
 
